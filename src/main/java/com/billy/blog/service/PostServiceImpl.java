@@ -30,7 +30,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public List<PostDTO> getAllPosts() {
+    public List<PostDTO> getAllPosts() throws PostException{
         List<PostDTO> postDTOS = new ArrayList<>();
         for (Post post: getAllPostsFromDb()) {
             postDTOS.add(PostDTO.packDTO(post));

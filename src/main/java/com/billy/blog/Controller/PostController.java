@@ -10,8 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 3000)
 @RestController
@@ -30,30 +34,54 @@ public class PostController {
 
     }
 
-    @DeleteMapping("{Id}")
-    public ResponseEntity<?> deletePostById(@Valid @PathVariable String Id) {
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllPosts() {
+        try {
+            List<PostDTO> allPosts = postService.getAllPosts();
+            return new ResponseEntity<>(new ApiResponse(true, allPosts.toString()),HttpStatus.FOUND);
+        }catch (PostException postException){
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),HttpStatus.BAD_REQUEST);
+
+
+        }
+    }
+    @GetMapping ("{Id}")
+    public ResponseEntity<?> getPostById( @Valid @PathVariable String Id) {
         log.info("Id : {}", Id);
         try {
-            postService.deletePostById(Id);
-            return new ResponseEntity<>(new ApiResponse(true, "post deleted successfully"),
-                    HttpStatus.NO_CONTENT);
+            postService.getPostById(Id);
+            return new ResponseEntity<>(new ApiResponse(true, "post gotten successfully"),
+                    HttpStatus.FOUND);
 
-        } catch (PostException productException) {
-            return new ResponseEntity<>(new ApiResponse(false, productException.getMessage()),
+        } catch (PostException postException) {
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),
                     HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("{title}")
-    public ResponseEntity<?> deletePostByTitle(@PathVariable String title) {
+    public ResponseEntity<?> deletePostByTitle( @Valid @PathVariable String title) {
         log.info("Title : {}", title);
         try {
             postService.deletePostByTitle(title);
             return new ResponseEntity<>(new ApiResponse(true, "post deleted successfully"),
                     HttpStatus.NO_CONTENT);
 
-        } catch (PostException productException) {
-            return new ResponseEntity<>(new ApiResponse(false, productException.getMessage()),
+        } catch (PostException postException) {
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+    @DeleteMapping("{Id}")
+    public ResponseEntity<?> deletePostById( @Valid @PathVariable String Id) {
+        log.info("Id : {}", Id);
+        try {
+            postService.deletePostById(Id);
+            return new ResponseEntity<>(new ApiResponse(true, "post deleted successfully"),
+                    HttpStatus.NO_CONTENT);
+
+        } catch (PostException postException) {
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -65,8 +93,26 @@ public class PostController {
             return new ResponseEntity<>(new ApiResponse(true, "post deleted successfully"),
                     HttpStatus.NO_CONTENT);
 
-        } catch (PostException productException) {
-            return new ResponseEntity<>(new ApiResponse(false, productException.getMessage()),
+        } catch (PostException postException) {
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),
                     HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PatchMapping("{Id}")
+            public ResponseEntity<?> updatePost( @PathVariable  @RequestBody String Id, PostDTO updatedPostDetails) {
+        log.info("post DTO : {} \n Id : {}", updatedPostDetails, Id);
+        try {
+            PostDTO updatedPost = postService.updatePost(Id, updatedPostDetails);
+            return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+
+        } catch (PostException postException) {
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
+
 }
+

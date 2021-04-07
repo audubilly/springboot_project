@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public interface PostService {
      void createPost (PostDTO postDTO);
-     List<PostDTO> getAllPosts();
+     List<PostDTO> getAllPosts() throws PostException;
      PostDTO getPostById(String id) throws PostException;
      void deletePostById(String id) throws PostException;
      void deletePostByTitle(String title) throws PostException;
