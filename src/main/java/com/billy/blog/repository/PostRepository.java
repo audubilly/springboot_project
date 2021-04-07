@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface postRepository extends MongoRepository<Post , String> {
+public interface PostRepository extends MongoRepository<Post , String> {
 
 }
 
