@@ -5,6 +5,7 @@ import com.billy.blog.Dtos.ApiResponse;
 import com.billy.blog.Dtos.PostDTO;
 import com.billy.blog.Exceptions.PostException;
 import com.billy.blog.models.Post;
+import com.billy.blog.repository.PostRepository;
 import com.billy.blog.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +25,7 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
 
     @PostMapping("/new")
     public ResponseEntity<?> createPost(@Valid @RequestBody PostDTO postDTO) {
@@ -38,20 +39,19 @@ public class PostController {
     public ResponseEntity<?> getAllPosts() {
         try {
             List<PostDTO> allPosts = postService.getAllPosts();
-            return new ResponseEntity<>(new ApiResponse(true, allPosts.toString()),HttpStatus.FOUND);
+            return new ResponseEntity<>(allPosts,HttpStatus.FOUND);
         }catch (PostException postException){
             return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),HttpStatus.BAD_REQUEST);
 
 
         }
     }
-    @GetMapping ("{Id}")
+    @GetMapping ("getPost/{Id}")
     public ResponseEntity<?> getPostById( @Valid @PathVariable String Id) {
         log.info("Id : {}", Id);
         try {
-            postService.getPostById(Id);
-            return new ResponseEntity<>(new ApiResponse(true, "post gotten successfully"),
-                    HttpStatus.FOUND);
+            PostDTO post = postService.getPostById(Id);
+            return new ResponseEntity<>(post, HttpStatus.FOUND);
 
         } catch (PostException postException) {
             return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),
@@ -59,7 +59,20 @@ public class PostController {
         }
     }
 
-    @DeleteMapping("{title}")
+    @GetMapping ("getPostByTitle/{title}")
+    public ResponseEntity<?> getPostByTitle( @Valid @PathVariable String title) {
+        log.info("Title : {}", title);
+        try {
+            PostDTO postDTO = postService.getPostByTitle(title);
+            return new ResponseEntity<>(postDTO, HttpStatus.FOUND);
+
+        } catch (PostException postException) {
+            return new ResponseEntity<>(new ApiResponse(false, postException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("deletePostByTitle/{title}")
     public ResponseEntity<?> deletePostByTitle( @Valid @PathVariable String title) {
         log.info("Title : {}", title);
         try {
@@ -72,7 +85,7 @@ public class PostController {
                     HttpStatus.BAD_REQUEST);
         }
     }
-    @DeleteMapping("{Id}")
+    @DeleteMapping("deletePostById/{Id}")
     public ResponseEntity<?> deletePostById( @Valid @PathVariable String Id) {
         log.info("Id : {}", Id);
         try {

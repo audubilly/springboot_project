@@ -4,6 +4,7 @@ import com.billy.blog.Dtos.PostDTO;
 import com.billy.blog.Exceptions.PostException;
 import com.billy.blog.models.Post;
 import com.billy.blog.repository.PostRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class PostServiceImpl implements PostService{
 
     @Autowired
@@ -70,9 +72,28 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public void deletePostByTitle(String title) throws PostException {
-     Post postToDelete = findPostById(title);
-        deletePost(postToDelete);
+     Post postToDelete = findPostByTitle(title);
+     log.info(postToDelete.toString());
+     deletePost(postToDelete);
     }
+
+    @Override
+    public PostDTO getPostByTitle(String title) throws PostException {
+      Post foundPost = findPostByTitle(title);
+      return PostDTO.packDTO(foundPost);
+
+    }
+
+    private Post findPostByTitle(String title) throws PostException {
+       Optional<Post> foundPost = postRepository.findPostByTitle(title);
+       if(foundPost.isPresent()){
+           return foundPost.get();
+        }
+       else {
+            throw new PostException("No post found with that title");
+        }
+    }
+
 
     @Override
     public void deleteAllPostByAuthor(String authorId) throws PostException {
